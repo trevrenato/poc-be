@@ -1,0 +1,19 @@
+{
+    "name": "poc-be",
+    "version": "0.0.1",
+    "scripts": {
+      "database:build": "sudo docker build -t poc-postgres .",
+      "database:start": "sudo docker-compose -f docker-composer.yml up -d",
+      "database:stop": "sudo docker-compose -f docker-composer.yml stop",
+      "database:kill": "sudo docker-compose -f docker-composer.yml down",
+      "database:logs": "sudo docker-compose -f docker-composer.yml logs -f",
+      "database:ip": "sudo docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' pocbe_db_1"
+    },
+    "private": true,
+    "dependencies": {
+
+    },
+    "devDependencies": {
+
+    }
+  }
