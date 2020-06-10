@@ -1,137 +1,162 @@
-import { AddressBookClient } from '../../src/clients';
-import { AddressBookRepository } from '../../src/repositories';
-import { AddressBookEntity } from '../../src/entities';
+import { Request, Response } from 'express';
+import Joi from '@hapi/joi';
+import { AddressBookController } from '../../src/controllers';
+import { AddressBookUseCase } from '../../src/use-cases';
+import { matchersWithOptions } from 'jest-json-schema';
 
-describe('AddressBookRepository', () => {
-  const addressBookRepository = new AddressBookRepository();
-  const createSpy: jest.SpyInstance = jest.spyOn(AddressBookClient, 'create');
-  const findAllSpy: jest.SpyInstance = jest.spyOn(AddressBookClient, 'findAll');
-  const findOneSpy: jest.SpyInstance = jest.spyOn(AddressBookClient, 'findOne');
-  const updateSpy: jest.SpyInstance = jest.spyOn(AddressBookClient, 'update');
-  const destroySpy: jest.SpyInstance = jest.spyOn(AddressBookClient, 'destroy');
-
-  const addressBookEntity: AddressBookEntity = new AddressBookEntity({
+describe('AddressBookController', () => {
+  const addressBookController = new AddressBookController();
+  const createAddressBookUseCaseSpy: jest.SpyInstance = jest.spyOn(AddressBookUseCase.prototype, 'createAddressBook');
+  const getAddressBookUseCaseSpy: jest.SpyInstance = jest.spyOn(AddressBookUseCase.prototype, 'getAddressBook');
+  const getAddressBookByEmailUseCaseSpy: jest.SpyInstance = jest.spyOn(
+    AddressBookUseCase.prototype,
+    'getAddressBookByEmail',
+  );
+  const updateAddressBookUseCaseSpy: jest.SpyInstance = jest.spyOn(AddressBookUseCase.prototype, 'updateAddressBook');
+  const deleteAddressBookUseCaseSpy: jest.SpyInstance = jest.spyOn(AddressBookUseCase.prototype, 'deleteAddressBook');
+  const mockAddressBook = {
     firstName: 'Batman Mock',
     lastName: 'Wayne Mock',
     email: 'batman@wayne.com',
     phone: '5551234',
-  });
-  const newAddressBookEntity: AddressBookEntity = new AddressBookEntity({
-    firstName: 'Batman Mock Updated',
-    lastName: 'Wayne Mock Updated',
-    email: 'batman@wayne.com',
-    phone: '5551234',
-  });
-  jest.spyOn(global.console, 'error');
+  };
+  const mockRequest = ({
+    body: {
+      ...mockAddressBook,
+    },
+    params: {
+      email: 'batman@wayne.com',
+    },
+  } as unknown) as Request;
+  const mockResponse = ({
+    sendStatus: jest.fn(),
+    json: jest.fn(),
+    location: jest.fn(),
+  } as unknown) as Response;
+  
+  jest.spyOn(global.console, 'warn');
+  const expectedValidatorSchema = {
+    create: Joi.object({
+      lastName: Joi.string().required(),
+      email: Joi.string().email().required(),
+      phone: Joi.string().required(),
+    }),
+    read: Joi.object({
+      email: Joi.string().email(),
+    }),
+    update: Joi.object({
+      firstName: Joi.string(),
+      lastName: Joi.string(),
+      email: Joi.string().email().required(),
+      phone: Joi.string(),
+    }),
+    delete: Joi.object({
+      email: Joi.string().email().required(),
+    }),
+  };
 
   beforeEach(() => {
     jest.resetAllMocks();
   });
 
   it('createAddressBook', async () => {
-    createSpy.mockReturnValueOnce(Promise.resolve(undefined));
+    createAddressBookUseCaseSpy.mockReturnValue(Promise.resolve(mockAddressBook));
 
-    await addressBookRepository.createAddressBook(addressBookEntity);
-    expect(createSpy).toBeCalledWith(addressBookEntity);
+    await addressBookController.createAddressBook(mockRequest, mockResponse);
+    expect(createAddressBookUseCaseSpy).toBeCalled();
   });
 
-  it('createAddressBook.catch', async () => {
-    const errorMessage = 'error creating address';
-    createSpy.mockReturnValueOnce(Promise.reject(errorMessage));
+  it('createAddressBook:catch', async () => {
+    createAddressBookUseCaseSpy.mockReturnValue(Promise.reject());
+    await addressBookController.createAddressBook(mockRequest, mockResponse);
+    expect(mockResponse.sendStatus).toBeCalledWith(409);
+  });
 
-    try {
-      await addressBookRepository.createAddressBook(addressBookEntity);
-    } catch (error) {
-      expect(error).toEqual(errorMessage);
-    }
+  it('createAddressBook:addressBook duplicated', async () => {
+    getAddressBookByEmailUseCaseSpy.mockReturnValue(mockAddressBook);
+    await addressBookController.createAddressBook(mockRequest, mockResponse);
+    expect(mockResponse.sendStatus).toBeCalledWith(409);
   });
 
   it('getAddressBook', async () => {
-    findAllSpy.mockReturnValueOnce(Promise.resolve(undefined));
+    getAddressBookUseCaseSpy.mockReturnValue(Promise.resolve(mockAddressBook));
 
-    await addressBookRepository.getAddressBook();
-    expect(findAllSpy).toBeCalled();
+    await addressBookController.getAddressBook(mockResponse);
+    expect(getAddressBookUseCaseSpy).toBeCalled();
   });
 
-  it('getAddressBook.catch', async () => {
-    const errorMessage = 'error reading address';
-    findAllSpy.mockReturnValueOnce(Promise.reject(errorMessage));
-
-    try {
-      await addressBookRepository.getAddressBook();
-    } catch (error) {
-      expect(error).toEqual(errorMessage);
-    }
+  it('getAddressBook:catch', async () => {
+    getAddressBookUseCaseSpy.mockReturnValue(Promise.reject());
+    await addressBookController.getAddressBook(mockResponse);
+    expect(mockResponse.sendStatus).toBeCalledWith(500);
   });
 
   it('getAddressBookByEmail', async () => {
-    findOneSpy.mockReturnValueOnce(Promise.resolve(undefined));
+    getAddressBookByEmailUseCaseSpy.mockReturnValue(Promise.resolve(mockAddressBook));
 
-    await addressBookRepository.getAddressBookByEmail(addressBookEntity);
-    expect(findOneSpy).toBeCalledWith({
-      where: { email: addressBookEntity.email },
-    });
+    await addressBookController.getAddressBookByEmail(mockRequest, mockResponse);
+    expect(getAddressBookByEmailUseCaseSpy).toBeCalled();
   });
 
-  it('getAddressBookByEmail.catch', async () => {
-    const errorMessage = 'error reading address';
-    findOneSpy.mockReturnValueOnce(Promise.reject(errorMessage));
-
-    try {
-      await addressBookRepository.getAddressBookByEmail(addressBookEntity);
-    } catch (error) {
-      expect(error).toEqual(errorMessage);
-    }
+  it('getAddressBookByEmail:catch', async () => {
+    getAddressBookByEmailUseCaseSpy.mockReturnValue(Promise.reject());
+    await addressBookController.getAddressBookByEmail(mockRequest, mockResponse);
+    expect(mockResponse.sendStatus).toBeCalledWith(500);
   });
 
   it('updateAddressBook', async () => {
-    updateSpy.mockReturnValueOnce(Promise.resolve(undefined));
+    updateAddressBookUseCaseSpy.mockReturnValue(Promise.resolve(mockAddressBook));
 
-    await addressBookRepository.updateAddressBook(addressBookEntity, newAddressBookEntity);
-    expect(updateSpy).toBeCalledWith(newAddressBookEntity, {
-      where: {
-        email: addressBookEntity.email,
-      },
-      returning: true,
-    });
+    getAddressBookByEmailUseCaseSpy.mockReturnValue(mockAddressBook);
+    await addressBookController.updateAddressBook(mockRequest, mockResponse);
+    expect(updateAddressBookUseCaseSpy).toBeCalled();
   });
 
-  it('updateAddressBook.catch', async () => {
-    const errorMessage = 'error reading address';
-    updateSpy.mockReturnValueOnce(Promise.reject(errorMessage));
+  it('updateAddressBook:catch', async () => {
+    updateAddressBookUseCaseSpy.mockReturnValue(Promise.reject());
 
-    try {
-      await addressBookRepository.updateAddressBook(addressBookEntity, newAddressBookEntity);
-    } catch (error) {
-      expect(error).toEqual(errorMessage);
-    }
+    getAddressBookByEmailUseCaseSpy.mockReturnValue(mockAddressBook);
+    await addressBookController.updateAddressBook(mockRequest, mockResponse);
+    expect(mockResponse.sendStatus).toBeCalledWith(500);
+  });
+
+  it('updateAddressBook: addressBook not found', async () => {
+    await addressBookController.updateAddressBook(mockRequest, mockResponse);
+    expect(mockResponse.sendStatus).toBeCalledWith(404);
   });
 
   it('deleteAddressBook', async () => {
-    destroySpy.mockReturnValueOnce(Promise.resolve(undefined));
+    deleteAddressBookUseCaseSpy.mockReturnValue(Promise.resolve(mockAddressBook));
 
-    const addressBookEntity: AddressBookEntity = new AddressBookEntity({
-      firstName: 'Batman Mock',
-      lastName: 'Wayne Mock',
-      email: 'batman@wayne.com',
-      phone: '5551234',
-    });
-
-    await addressBookRepository.deleteAddressBook(addressBookEntity);
-    expect(destroySpy).toBeCalledWith({
-      where: { email: addressBookEntity.email },
-      limit: 1,
-    });
+    getAddressBookByEmailUseCaseSpy.mockReturnValue(mockAddressBook);
+    await addressBookController.deleteAddressBook(mockRequest, mockResponse);
+    expect(deleteAddressBookUseCaseSpy).toBeCalled();
   });
 
-  it('deleteAddressBook.catch', async () => {
-    const errorMessage = 'error reading address';
-    destroySpy.mockReturnValueOnce(Promise.reject(errorMessage));
+  it('deleteAddressBook:catch', async () => {
+    deleteAddressBookUseCaseSpy.mockReturnValue(Promise.reject());
 
-    try {
-      await addressBookRepository.deleteAddressBook(addressBookEntity);
-    } catch (error) {
-      expect(error).toEqual(errorMessage);
-    }
+    getAddressBookByEmailUseCaseSpy.mockReturnValue(mockAddressBook);
+    await addressBookController.deleteAddressBook(mockRequest, mockResponse);
+    expect(mockResponse.sendStatus).toBeCalledWith(500);
+  });
+
+  it('deleteAddressBook: addressBook not found', async () => {
+    await addressBookController.updateAddressBook(mockRequest, mockResponse);
+    expect(mockResponse.sendStatus).toBeCalledWith(404);
+  });
+
+  it('getValidatorSchema', () => {
+    expect.extend(
+      matchersWithOptions({
+        // Loading in a schema which is comprised only of definitions,
+        // which means specific test schemas need to be created.
+        // This is good for testing specific conditions for definition schemas.
+        schemas: [expectedValidatorSchema],
+      }),
+    );
+
+    const validatorSchema = addressBookController.getValidatorSchema();
+    expect(validatorSchema).toBeValidSchema();
   });
 });

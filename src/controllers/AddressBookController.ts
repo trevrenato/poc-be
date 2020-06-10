@@ -23,7 +23,7 @@ export class AddressBookController {
           res.location(`/v1/address-book/${addressBook.email}`);
           return res.json(addressBook);
         })
-        .catch((error) => res.status(500).json(error));
+        .catch(() => res.sendStatus(409));
     } else {
       return res.sendStatus(409);
     }
@@ -33,7 +33,7 @@ export class AddressBookController {
     return this.addressBookUseCase
       .getAddressBook()
       .then((addressesBook) => res.json(addressesBook))
-      .catch((error) => res.status(500).json(error));
+      .catch(() => res.sendStatus(500));
   }
 
   public getAddressBookByEmail(req: Request, res: Response): Promise<Response> {
@@ -47,7 +47,7 @@ export class AddressBookController {
     return this.addressBookUseCase
       .getAddressBookByEmail(addressBookEntity)
       .then((addressBook) => res.json(addressBook || {}))
-      .catch((error) => res.status(500).json(error));
+      .catch(() => res.sendStatus(500));
   }
 
   public async updateAddressBook(req: Request, res: Response): Promise<Response> {
@@ -69,7 +69,7 @@ export class AddressBookController {
       return this.addressBookUseCase
         .updateAddressBook(addressBookEntity, newAddressBookEntity)
         .then((success) => res.json(success))
-        .catch((error) => res.status(500).json(error));
+        .catch(() => res.sendStatus(500));
     }
 
     return res.sendStatus(404);
@@ -88,7 +88,7 @@ export class AddressBookController {
       return this.addressBookUseCase
         .deleteAddressBook(addressBookEntity)
         .then(() => res.sendStatus(202))
-        .catch((error) => res.status(500).json(error));
+        .catch(() => res.sendStatus(500));
     }
 
     return res.sendStatus(404);
