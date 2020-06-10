@@ -1,0 +1,155 @@
+{
+	"info": {
+		"_postman_id": "84d13688-bdbd-4b65-8450-87a982ef4a7c",
+		"name": "poc-be",
+		"description": "Collections related to POC-be",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"firstName\": \"Zelda\",\n\t\"lastName\": \"Anakin\",\n\t\"email\": \"test-email@Anakin.com\",\n\t\"phone\": \"123124121\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:3000/v1/address-book",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"v1",
+						"address-book"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Read all",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:3000/v1/address-book/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"v1",
+						"address-book",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Read by email",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:3000/v1/address-book/test-email@anakin.com",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"v1",
+						"address-book",
+						"test-email@anakin.com"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:3000/v1/address-book/test-email@anakin.com",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"v1",
+						"address-book",
+						"test-email@anakin.com"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"firstName\": \"Zelda Updated\",\n\t\"lastName\": \"Anakin Updated\",\n\t\"email\": \"new-email@anakin.com\",\n\t\"phone\": \"123124121 23443432 432\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:3000/v1/address-book/new-email@Anakin.com",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"v1",
+						"address-book",
+						"new-email@Anakin.com"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

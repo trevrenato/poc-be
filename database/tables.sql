@@ -1,7 +1,7 @@
 CREATE TABLE address_book (
-	id SERIAL PRIMARY KEY,
-	surname VARCHAR NOT NULL,
-    forename VARCHAR NOT NULL,
+    id SERIAL PRIMARY KEY,
+    first_name VARCHAR NOT NULL,
+    last_name VARCHAR NOT NULL,
     email VARCHAR NOT NULL,
     phone VARCHAR NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),

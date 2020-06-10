@@ -1,0 +1,28 @@
+{
+    "compilerOptions": {
+        "moduleResolution": "node",
+        "baseUrl": "./",
+        "module": "commonjs",
+        "target": "es6",
+        "outDir": "dist",
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "resolveJsonModule": true,
+        "removeComments": true,
+        "lib": ["es6"],
+        "types": ["node", "jest"],
+        "sourceMap": true,
+        "esModuleInterop": true,
+        "paths": {
+            "@clients": ["src/clients"],
+            "@controllers": ["src/controllers"],
+            "@entities": ["src/entities"],
+            "@models": ["src/models"],
+            "@repositories": ["src/repositories"],
+            "@routes": ["src/routes"],
+            "@use-cases": ["src/use-cases"],
+        }
+    },
+    "include": ["./src/**/*"],
+    "exclude": ["node_modules"]
+}
